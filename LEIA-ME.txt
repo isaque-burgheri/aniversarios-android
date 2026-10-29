@@ -1,25 +1,31 @@
-ANIVERSÁRIOS — projeto Android nativo
+ANIVERSÁRIOS — projeto Android nativo, versão 1.1
 
-Este ZIP contém código-fonte, não um APK. Android 8.0 ou superior.
+Android 8.0 ou superior.
 
-COMO GERAR O APLICATIVO
-1. Instale/abra Android Studio e escolha Open na pasta Aniversarios.
-2. Use JDK 17 e Gradle 8.9 (wrapper incluído no projeto). Instale o SDK Android 35 quando solicitado.
-3. Aguarde a sincronização. É necessário acesso à internet para baixar as ferramentas.
-4. Use Build > Generate App Bundles or APKs > Generate APKs (o nome do menu pode variar).
-5. Instale app/build/outputs/apk/debug/app-debug.apk no Android, ou use Run com o celular conectado por USB e depuração ativada.
-6. Abra Aniversários, cadastre as pessoas e toque em Adicionar widget à tela inicial. O launcher pode pedir confirmação.
+GERAR O APLICATIVO
+No GitHub, abra Actions > Gerar APK. Commits em main geram um APK automaticamente.
+Baixe o artefato Aniversarios-APK, extraia o ZIP e instale app-debug.apk.
+Para compilar localmente: JDK 17, SDK Android 35 e bash gradlew assembleDebug.
 
 USO
-Toque no cadastro para editar ou excluir. Nome/título e data DD/MM/AAAA são obrigatórios. Datas inválidas ou futuras são rejeitadas. Os exemplos solicitados já estão cadastrados e podem ser excluídos.
-O widget mostra duas pessoas por página. Toque em › para alternar e nas pessoas para abrir o cadastro. Redimensione para pelo menos 4×3 células se os textos forem cortados pelo launcher ou pela fonte ampliada.
-Os dados ficam localmente no aparelho, sem internet, conta ou permissão de contatos. Não há exportação; desinstalar apaga os cadastros. Todos os widgets compartilham os mesmos cadastros.
+Toque no cadastro para editar ou excluir. Nome/título e data DD/MM/AAAA são obrigatórios.
+O widget mostra todos os aniversários em uma única lista com rolagem vertical.
+Deslize para cima ou para baixo dentro do widget para ver os nomes que não couberem.
+O cabeçalho e os botões Cadastrar e Atualizar permanecem visíveis. Não há páginas.
+Toque numa pessoa para abrir o aplicativo. Você pode redimensionar o widget.
+Os dados ficam localmente no aparelho. Todos os widgets compartilham os mesmos cadastros.
+A versão 1.1 mantém o identificador do aplicativo e o formato dos cadastros da versão 1.0.
+APKs de teste gerados em máquinas diferentes podem ter assinaturas diferentes.
+Se o Android recusar a atualização, não desinstale sem antes preservar seus cadastros: desinstalar apaga os dados.
 
-CÁLCULO
-Usa java.time.Period.between, em anos, meses e dias do calendário local do aparelho. Não divide dias por 365. A convenção é a de períodos ISO da biblioteca Java, inclusive em fevereiro e fins de mês.
-Em 28/10/2026: Isaque = 32 anos, 5 meses e 8 dias; Mãe = 68 anos, 11 meses e 12 dias.
-Solicita atualização automática a cada 30 minutos e reage a mudanças de data/hora; o Android pode atrasar atualizações para economizar bateria. Toque em Atualizar ou abra o aplicativo para atualização imediata. Não promete atualização à meia-noite exata.
+CÁLCULO E ATUALIZAÇÃO
+Usa java.time.Period.between, em anos, meses e dias do calendário local do aparelho.
+Solicita atualização a cada 30 minutos e reage a mudanças de data/hora.
+O Android pode atrasar atualizações para economizar bateria.
+Toque em Atualizar ou abra o aplicativo para atualização imediata.
 
-VISUAL E ESTADO
-Inspirado na referência: painel escuro translúcido, cantos arredondados, branco e divisória fina. O gradiente simula vidro; NÃO desfoca de verdade o papel de parede. Não é uma cópia pixel a pixel: os textos foram organizados em linhas para caber no celular.
-Projeto criado sem SDK Android disponível: compilação, instalação e comportamento no launcher ainda NÃO foram testados. Validação realizada: XML e cálculos de idade com Java. Faça o primeiro build no Android Studio antes de considerar pronto para uso.
+VISUAL
+Painel escuro translúcido, cantos arredondados, textos brancos e divisória fina.
+O gradiente simula vidro; não desfoca de verdade o papel de parede.
+A lista usa RemoteCollectionItems no Android 12 ou superior e RemoteViewsService no Android 8 a 11.
+A rolagem no launcher precisa de confirmação em aparelho físico.

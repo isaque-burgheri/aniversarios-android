@@ -1,22 +1,84 @@
 package br.com.aniversarios;
-import android.app.*; import android.appwidget.*; import android.content.*; import android.os.Bundle; import android.widget.*; import java.time.*; import java.time.format.*; import org.json.*;
+
+import android.app.PendingIntent;
+import android.appwidget.AppWidgetManager;
+import android.appwidget.AppWidgetProvider;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.widget.RemoteViews;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 public class BirthdayWidget extends AppWidgetProvider {
- static final String NEXT="br.com.aniversarios.NEXT";
- static void refresh(Context c) { AppWidgetManager m=AppWidgetManager.getInstance(c); for(int id:m.getAppWidgetIds(new ComponentName(c,BirthdayWidget.class))) render(c,m,id); }
- public void onUpdate(Context c,AppWidgetManager m,int[] ids) { for(int id:ids) render(c,m,id); }
- public void onAppWidgetOptionsChanged(Context c,AppWidgetManager m,int id,Bundle b) { render(c,m,id); }
- public void onReceive(Context c,Intent i) { super.onReceive(c,i); if(NEXT.equals(i.getAction())) {int id=i.getIntExtra("id",-1); android.content.SharedPreferences p=c.getSharedPreferences("pages",0); p.edit().putInt("p"+id,p.getInt("p"+id,0)+1).apply();} refresh(c); }
- public void onDeleted(Context c,int[] ids) { for(int id:ids)c.getSharedPreferences("pages",0).edit().remove("p"+id).apply(); }
- static void render(Context c,AppWidgetManager m,int id) {
-  JSONArray a=Store.read(c); int pages=Math.max(1,(a.length()+1)/2); int page=c.getSharedPreferences("pages",0).getInt("p"+id,0)%pages;
-  RemoteViews v=new RemoteViews(c.getPackageName(),R.layout.widget); v.removeAllViews(R.id.rows);
-  v.setTextViewText(R.id.header,"Aniversários · "+LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM")));
-  for(int n=page*2;n<Math.min(a.length(),page*2+2);n++) {JSONObject o=a.optJSONObject(n); if(o==null)continue; RemoteViews r=new RemoteViews(c.getPackageName(),R.layout.row); r.setTextViewText(R.id.name,o.optString("name")); try {LocalDate d=LocalDate.parse(o.getString("date"));r.setTextViewText(R.id.age,Age.between(d,LocalDate.now()));r.setTextViewText(R.id.date,d.format(DateTimeFormatter.ofPattern("dd/MM/uuuu")));}catch(Exception e){r.setTextViewText(R.id.age,"Confira a data no aplicativo");} v.addView(R.id.rows,r); }
-  if(a.length()==0)v.setTextViewText(R.id.header,"Cadastre seu primeiro aniversário");
-  PendingIntent open=PendingIntent.getActivity(c,0,new Intent(c,MainActivity.class),PendingIntent.FLAG_IMMUTABLE|PendingIntent.FLAG_UPDATE_CURRENT);
-  v.setOnClickPendingIntent(R.id.manage,open);v.setOnClickPendingIntent(R.id.rows,open);
-  Intent next=new Intent(c,BirthdayWidget.class).setAction(NEXT).putExtra("id",id);
-  v.setOnClickPendingIntent(R.id.next,PendingIntent.getBroadcast(c,id,next,PendingIntent.FLAG_IMMUTABLE|PendingIntent.FLAG_UPDATE_CURRENT));
-  v.setTextViewText(R.id.next,pages>1?(page+1)+"/"+pages+"  ›":"↻ Atualizar"); m.updateAppWidget(id,v);
+ static final String REFRESH = "br.com.aniversarios.REFRESH";
+ static void refresh(Context c) {
+  AppWidgetManager m = AppWidgetManager.getInstance(c);
+  for (int id : m.getAppWidgetIds(new ComponentName(c, BirthdayWidget.class))) render(c, m, id);
+ }
+ @Override public void onUpdate(Context c, AppWidgetManager m, int[] ids) {
+  for (int id : ids) render(c, m, id);
+ }
+ @Override public void onAppWidgetOptionsChanged(Context c, AppWidgetManager m, int id, Bundle b) {
+  render(c, m, id);
+ }
+ @Override public void onReceive(Context c, Intent i) {
+  super.onReceive(c, i);
+  String action = i.getAction();
+  if (REFRESH.equals(action) || Intent.ACTION_DATE_CHANGED.equals(action)
+      || Intent.ACTION_TIME_CHANGED.equals(action) || Intent.ACTION_TIMEZONE_CHANGED.equals(action)
+      || Intent.ACTION_MY_PACKAGE_REPLACED.equals(action)) refresh(c);
+ }
+ static RemoteViews row(Context c, JSONObject person, LocalDate today) {
+  RemoteViews r = new RemoteViews(c.getPackageName(), R.layout.row);
+  r.setTextViewText(R.id.name, person.optString("name"));
+  try {
+   LocalDate birth = LocalDate.parse(person.getString("date"));
+   r.setTextViewText(R.id.age, Age.between(birth, today));
+   r.setTextViewText(R.id.date, birth.format(DateTimeFormatter.ofPattern("dd/MM/uuuu")));
+  } catch (Exception e) {
+   r.setTextViewText(R.id.age, "Confira a data no aplicativo");
+   r.setTextViewText(R.id.date, "");
+  }
+  r.setOnClickFillInIntent(R.id.person, new Intent());
+  return r;
+ }
+ static void render(Context c, AppWidgetManager m, int id) {
+  RemoteViews v = new RemoteViews(c.getPackageName(), R.layout.widget);
+  LocalDate today = LocalDate.now();
+  v.setTextViewText(R.id.header, "Aniversários · " + today.format(DateTimeFormatter.ofPattern("dd/MM")));
+  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+   JSONArray people = Store.read(c);
+   RemoteViews.RemoteCollectionItems.Builder items = new RemoteViews.RemoteCollectionItems.Builder()
+       .setHasStableIds(false).setViewTypeCount(1);
+   for (int n = 0; n < people.length(); n++) {
+    JSONObject person = people.optJSONObject(n);
+    if (person != null) items.addItem(n, row(c, person, today));
+   }
+   v.setRemoteAdapter(R.id.rows, items.build());
+  } else {
+   Intent adapter = new Intent(c, BirthdayListService.class);
+   adapter.setData(Uri.parse("birthdays://widget/" + id));
+   v.setRemoteAdapter(R.id.rows, adapter);
+  }
+  v.setEmptyView(R.id.rows, R.id.empty);
+  Intent activity = new Intent(c, MainActivity.class);
+  PendingIntent open = PendingIntent.getActivity(c, 0, activity,
+      PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+  v.setOnClickPendingIntent(R.id.manage, open);
+  v.setOnClickPendingIntent(R.id.header, open);
+  int mutable = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ? PendingIntent.FLAG_MUTABLE : 0;
+  v.setPendingIntentTemplate(R.id.rows, PendingIntent.getActivity(c, 1, activity,
+      mutable | PendingIntent.FLAG_UPDATE_CURRENT));
+  Intent refresh = new Intent(c, BirthdayWidget.class).setAction(REFRESH);
+  v.setOnClickPendingIntent(R.id.refresh, PendingIntent.getBroadcast(c, 0, refresh,
+      PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
+  m.updateAppWidget(id, v);
+  if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) m.notifyAppWidgetViewDataChanged(id, R.id.rows);
  }
 }

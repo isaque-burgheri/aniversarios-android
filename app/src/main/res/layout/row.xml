@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingBottom="14dp">
+<LinearLayout android:id="@+id/person" xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingBottom="14dp">
 <TextView android:id="@+id/name" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#FFFFFF" android:textSize="18sp" android:maxLines="1" android:ellipsize="end"/>
 <TextView android:id="@+id/age" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#FFFFFF" android:textSize="14sp"/>
 <TextView android:id="@+id/date" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#BBFFFFFF" android:textSize="11sp"/>
