@@ -6,8 +6,6 @@ Widget de aniversários com cadastro local e idade em anos, meses e dias.
 
 <img src="docs/images/widget-exemplo.jpg" alt="Widget Aniversários na tela inicial do Android, com painel translúcido e idades em anos, meses e dias" width="320" />
 
-*Captura da versão 1.0 para ilustrar o visual. Na versão 1.1, a paginação foi substituída por rolagem vertical.*
-
 ## Versão 1.1
 Todos os aniversários aparecem em uma lista única com rolagem vertical dentro do widget, sem paginação.
 O cabeçalho e os botões Cadastrar e Atualizar ficam fixos. O visual translúcido foi mantido.
