@@ -1,0 +1,25 @@
+ANIVERSÁRIOS — projeto Android nativo
+
+Este ZIP contém código-fonte, não um APK. Android 8.0 ou superior.
+
+COMO GERAR O APLICATIVO
+1. Instale/abra Android Studio e escolha Open na pasta Aniversarios.
+2. Use JDK 17 e Gradle 8.9 (wrapper incluído no projeto). Instale o SDK Android 35 quando solicitado.
+3. Aguarde a sincronização. É necessário acesso à internet para baixar as ferramentas.
+4. Use Build > Generate App Bundles or APKs > Generate APKs (o nome do menu pode variar).
+5. Instale app/build/outputs/apk/debug/app-debug.apk no Android, ou use Run com o celular conectado por USB e depuração ativada.
+6. Abra Aniversários, cadastre as pessoas e toque em Adicionar widget à tela inicial. O launcher pode pedir confirmação.
+
+USO
+Toque no cadastro para editar ou excluir. Nome/título e data DD/MM/AAAA são obrigatórios. Datas inválidas ou futuras são rejeitadas. Os exemplos solicitados já estão cadastrados e podem ser excluídos.
+O widget mostra duas pessoas por página. Toque em › para alternar e nas pessoas para abrir o cadastro. Redimensione para pelo menos 4×3 células se os textos forem cortados pelo launcher ou pela fonte ampliada.
+Os dados ficam localmente no aparelho, sem internet, conta ou permissão de contatos. Não há exportação; desinstalar apaga os cadastros. Todos os widgets compartilham os mesmos cadastros.
+
+CÁLCULO
+Usa java.time.Period.between, em anos, meses e dias do calendário local do aparelho. Não divide dias por 365. A convenção é a de períodos ISO da biblioteca Java, inclusive em fevereiro e fins de mês.
+Em 28/10/2026: Isaque = 32 anos, 5 meses e 8 dias; Mãe = 68 anos, 11 meses e 12 dias.
+Solicita atualização automática a cada 30 minutos e reage a mudanças de data/hora; o Android pode atrasar atualizações para economizar bateria. Toque em Atualizar ou abra o aplicativo para atualização imediata. Não promete atualização à meia-noite exata.
+
+VISUAL E ESTADO
+Inspirado na referência: painel escuro translúcido, cantos arredondados, branco e divisória fina. O gradiente simula vidro; NÃO desfoca de verdade o papel de parede. Não é uma cópia pixel a pixel: os textos foram organizados em linhas para caber no celular.
+Projeto criado sem SDK Android disponível: compilação, instalação e comportamento no launcher ainda NÃO foram testados. Validação realizada: XML e cálculos de idade com Java. Faça o primeiro build no Android Studio antes de considerar pronto para uso.
