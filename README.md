@@ -6,6 +6,11 @@ Widget de aniversários com cadastro local e idade em anos, meses e dias.
 
 <img src="docs/images/widget-exemplo.jpg" alt="Widget Aniversários na tela inicial do Android, com painel translúcido e idades em anos, meses e dias" width="320" />
 
+## Versão 1.2
+O botão central do rodapé alterna entre **Idade** (mais velhos primeiro) e **Data** (mês e dia, de janeiro a dezembro, ignorando o ano de nascimento).
+O texto indica a ordem atual. A escolha fica salva e vale para todos os widgets, inclusive após atualizar ou reiniciar o aparelho. O padrão é mais velhos primeiro.
+Os cadastros não são reordenados nem alterados; a ordenação afeta a exibição no widget.
+
 ## Versão 1.1
 Todos os aniversários aparecem em uma lista única com rolagem vertical dentro do widget, sem paginação.
 O cabeçalho e os botões Cadastrar e Atualizar ficam fixos. O visual translúcido foi mantido.

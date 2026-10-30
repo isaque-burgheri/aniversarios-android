@@ -20,7 +20,7 @@ public class BirthdayListService extends RemoteViewsService {
   BirthdayFactory(Context context) { this.context = context; }
   @Override public void onCreate() { onDataSetChanged(); }
   @Override public void onDataSetChanged() {
-   people = Store.read(context);
+   people = Store.sorted(context);
    today = LocalDate.now();
   }
   @Override public void onDestroy() { people = new JSONArray(); }

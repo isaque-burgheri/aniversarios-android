@@ -2,6 +2,8 @@ name: Gerar APK
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
@@ -25,6 +27,11 @@ jobs:
           mkdir -p /tmp/age-tests
           javac -d /tmp/age-tests app/src/main/java/br/com/aniversarios/Age.java AgeCheck.java
           java -cp /tmp/age-tests AgeCheck
+      - name: Validar ordenação do widget
+        run: |
+          mkdir -p /tmp/order-tests
+          javac -d /tmp/order-tests app/src/main/java/br/com/aniversarios/BirthdayOrder.java BirthdayOrderCheck.java
+          java -cp /tmp/order-tests br.com.aniversarios.BirthdayOrderCheck
       - name: Compilar APK
         run: bash gradlew assembleDebug --stacktrace
       - uses: actions/upload-artifact@v4
