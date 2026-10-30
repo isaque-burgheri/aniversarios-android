@@ -16,6 +16,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class BirthdayWidget extends AppWidgetProvider {
+ static final String TOGGLE_ORDER = "br.com.aniversarios.TOGGLE_ORDER";
  static final String REFRESH = "br.com.aniversarios.REFRESH";
  static void refresh(Context c) {
   AppWidgetManager m = AppWidgetManager.getInstance(c);
@@ -30,6 +31,10 @@ public class BirthdayWidget extends AppWidgetProvider {
  @Override public void onReceive(Context c, Intent i) {
   super.onReceive(c, i);
   String action = i.getAction();
+  if (TOGGLE_ORDER.equals(action)) {
+   Store.toggleOrder(c);
+   return;
+  }
   if (REFRESH.equals(action) || Intent.ACTION_DATE_CHANGED.equals(action)
       || Intent.ACTION_TIME_CHANGED.equals(action) || Intent.ACTION_TIMEZONE_CHANGED.equals(action)
       || Intent.ACTION_MY_PACKAGE_REPLACED.equals(action)) refresh(c);
@@ -53,7 +58,7 @@ public class BirthdayWidget extends AppWidgetProvider {
   LocalDate today = LocalDate.now();
   v.setTextViewText(R.id.header, "Aniversários · " + today.format(DateTimeFormatter.ofPattern("dd/MM")));
   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-   JSONArray people = Store.read(c);
+   JSONArray people = Store.sorted(c);
    RemoteViews.RemoteCollectionItems.Builder items = new RemoteViews.RemoteCollectionItems.Builder()
        .setHasStableIds(false).setViewTypeCount(1);
    for (int n = 0; n < people.length(); n++) {
@@ -77,6 +82,13 @@ public class BirthdayWidget extends AppWidgetProvider {
       mutable | PendingIntent.FLAG_UPDATE_CURRENT));
   Intent refresh = new Intent(c, BirthdayWidget.class).setAction(REFRESH);
   v.setOnClickPendingIntent(R.id.refresh, PendingIntent.getBroadcast(c, 0, refresh,
+      PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
+  v.setTextViewText(R.id.order, Store.byBirthday(c) ? "↕ Data" : "↕ Idade");
+  v.setContentDescription(R.id.order, Store.byBirthday(c)
+      ? "Ordem por mês e dia. Toque para mostrar mais velhos primeiro."
+      : "Mais velhos primeiro. Toque para ordenar por mês e dia.");
+  Intent order = new Intent(c, BirthdayWidget.class).setAction(TOGGLE_ORDER);
+  v.setOnClickPendingIntent(R.id.order, PendingIntent.getBroadcast(c, 2, order,
       PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
   m.updateAppWidget(id, v);
   if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) m.notifyAppWidgetViewDataChanged(id, R.id.rows);
